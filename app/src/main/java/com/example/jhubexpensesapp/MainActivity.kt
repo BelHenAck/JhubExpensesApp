@@ -24,9 +24,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.jhubexpensesapp.database.ExpenseDatabase
+import com.example.jhubexpensesapp.repository.ExpenseRepository
 import com.example.jhubexpensesapp.screens.AddExpenseScreen
 import com.example.jhubexpensesapp.screens.HomeScreen
+import com.example.jhubexpensesapp.screens.UpdateExpenseScreen
 import com.example.jhubexpensesapp.ui.theme.JhubExpensesAppTheme
+import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
+import com.example.jhubexpensesapp.viewModel.ViewModelFactory
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -35,9 +42,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
+            val database = ExpenseDatabase.getInstance(applicationContext)
+            val repository = ExpenseRepository(database.expenseDao)
+            val viewModelFactory = ViewModelFactory(repository)
+
+            val viewModel = ViewModelProvider(
+                this, viewModelFactory)[ExpenseViewModel::class.java]
+
             JhubExpensesAppTheme {
 
-                AddExpenseScreen()
+                AddExpenseScreen(viewModel)
 
             }
 
@@ -45,23 +59,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun AddExpenseScreen(){
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.primary)
-        .wrapContentHeight()
-        .padding(start = 8.dp),
-        horizontalArrangement = Arrangement.Start) {
-
-        Text("Add Expense",
-            fontWeight = FontWeight.Bold
-        )
-
-    }
-
-}
 
 @Preview(showBackground = true,
     showSystemUi = true,
@@ -69,6 +67,6 @@ fun AddExpenseScreen(){
 @Composable
 fun GreetingPreview() {
     JhubExpensesAppTheme{
-        AddExpenseScreen()
+
     }
 }

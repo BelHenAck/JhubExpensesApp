@@ -7,12 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,11 +37,13 @@ import com.example.jhubexpensesapp.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
+import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
 
 
 @Composable
-fun AddExpenseScreen(){
+fun AddExpenseScreen(viewModel: ExpenseViewModel){
 
     var title by remember {
         mutableStateOf("")
@@ -51,12 +59,11 @@ fun AddExpenseScreen(){
 
     Column(modifier = Modifier.fillMaxSize()
         .background(MaterialTheme.colorScheme.primary)) {
-
         // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.tertiary)
+                .background(MaterialTheme.colorScheme.primary)
                 .height(64.dp)
                 .padding(horizontal = 18.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -66,7 +73,7 @@ fun AddExpenseScreen(){
                 "Add Expense",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.tertiary
             )
 
             Spacer(
@@ -76,15 +83,16 @@ fun AddExpenseScreen(){
             // Total cost
             Text(
                 "£175.65",
-                fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.secondary
             )
 
         }
 
             // Entries for title, cost and date
-        Column(modifier = Modifier.padding(8.dp)) {
+        Column(modifier = Modifier.padding(start = 8.dp,
+            top = 30.dp)) {
+
 
             OutlinedTextField(
                 title,
@@ -92,10 +100,18 @@ fun AddExpenseScreen(){
                 label = {Text("Title")}
             )
 
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
             OutlinedTextField(
                 cost,
                 onValueChange = {cost = it},
                 label = {Text("Cost")}
+            )
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
             )
 
             // date will be taken from metadata
@@ -111,8 +127,10 @@ fun AddExpenseScreen(){
         // Where the image will be uploaded
         Box(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(start = 8.dp,
+                    top = 100.dp)
                 .size(300.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.onPrimary)
 
         ) {
@@ -135,6 +153,7 @@ fun AddExpenseScreen(){
             OutlinedButton (
                 onClick = {
                     /* TODO */
+                    // Open Gallery picker
                 },
                 shape = RoundedCornerShape(4.dp)
             ) {
@@ -142,6 +161,10 @@ fun AddExpenseScreen(){
                 Icon(
                     painter = painterResource(R.drawable.upload_icon),
                     "Upload from gallery Icon"
+                )
+
+                Spacer(
+                    modifier = Modifier.width(4.dp)
                 )
 
                 Text("Gallery")
@@ -152,7 +175,51 @@ fun AddExpenseScreen(){
 
         }
 
+        Spacer(
+            modifier = Modifier.weight(1f)
+        )
 
+        // Footer
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primary)
+                .height(64.dp)
+                .padding(horizontal = 18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                ElevatedButton(
+                    onClick = {
+                        // Submit
+                    },
+                    modifier = Modifier.align(Alignment.Center),
+                    elevation = ButtonDefaults.elevatedButtonElevation(8.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        "Submit",
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+
+            IconButton(
+                onClick = {
+                    // Open camera
+                }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.outline_photo_camera_24),
+                    contentDescription = "Open Camera"
+                )
+            }
+        }
 
 
     }

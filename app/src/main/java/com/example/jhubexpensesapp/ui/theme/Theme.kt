@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFFF0EFEF),
-    onPrimary = Color(0xFFE6E6E6),
+    onPrimary = Color(0xFFC5C5C5),
     secondary = Color(0xFF262626),
     tertiary = Color(0xFF5BB753)
 )

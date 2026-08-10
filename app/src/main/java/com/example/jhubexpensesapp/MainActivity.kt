@@ -21,6 +21,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.jhubexpensesapp.screens.AddExpenseScreen
@@ -35,6 +36,8 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             JhubExpensesAppTheme {
+
+                AddExpenseScreen()
 
             }
 
@@ -61,10 +64,11 @@ fun AddExpenseScreen(){
 }
 
 @Preview(showBackground = true,
-    showSystemUi = true)
+    showSystemUi = true,
+    device = Devices.PIXEL_7)
 @Composable
 fun GreetingPreview() {
-    JhubExpensesAppTheme {
+    JhubExpensesAppTheme{
         AddExpenseScreen()
     }
 }

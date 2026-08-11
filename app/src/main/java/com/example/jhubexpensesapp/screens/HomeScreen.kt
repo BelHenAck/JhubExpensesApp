@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,10 +21,12 @@ fun HomeScreen(){
         topBar = {
             TopAppBar(title = {
                 Text("jHub Expenses",
+                    fontSize = 36.sp,
                     color = MaterialTheme.colorScheme.tertiary)
             },
                 actions = {
                     Text("£175.69",
+                        fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.padding(end = 16.dp))

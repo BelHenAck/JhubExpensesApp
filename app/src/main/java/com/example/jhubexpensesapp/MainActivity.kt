@@ -26,11 +26,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.jhubexpensesapp.database.Expense
 import com.example.jhubexpensesapp.database.ExpenseDatabase
 import com.example.jhubexpensesapp.repository.ExpenseRepository
 import com.example.jhubexpensesapp.screens.AddExpenseScreen
+import com.example.jhubexpensesapp.screens.ExpenseItemCard
 import com.example.jhubexpensesapp.screens.HomeScreen
-import com.example.jhubexpensesapp.screens.UpdateExpenseScreen
 import com.example.jhubexpensesapp.ui.theme.JhubExpensesAppTheme
 import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
 import com.example.jhubexpensesapp.viewModel.ViewModelFactory
@@ -51,7 +52,30 @@ class MainActivity : ComponentActivity() {
 
             JhubExpensesAppTheme {
 
-                AddExpenseScreen(viewModel)
+                Scaffold(
+                    topBar = {
+                        TopAppBar(title = {
+                            Text("jHub Expenses",
+                                color = MaterialTheme.colorScheme.tertiary)
+                        },
+                            actions = {
+                                Text("£175.69",
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    modifier = Modifier.padding(end = 16.dp))
+                            })
+                    }
+                ) { paddingValues ->
+
+                    Column(
+                        modifier = Modifier.padding(paddingValues)
+                    ) {
+
+                    ExpenseItemCard()
+
+                    }
+
+                }
 
             }
 

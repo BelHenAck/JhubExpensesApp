@@ -16,6 +16,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +32,7 @@ import com.example.jhubexpensesapp.R
 
 @Composable
 fun ExpenseItemCard(expense: Expense, navController: NavController){
+
 
     Spacer(
         modifier = Modifier.padding(top = 24.dp)
@@ -84,14 +86,14 @@ fun ExpenseItemCard(expense: Expense, navController: NavController){
 
             Column() {
 
-                Text("Lossiemouth",
+                Text(text = expense.expenseTitle,
                     fontSize = 24.sp)
 
                 Spacer(
                     modifier = Modifier.padding(2.dp)
                 )
 
-                Text("£175.65",
+                Text(text = "£%.2f".format(expense.cost),
                     fontSize = 20.sp)
 
             }

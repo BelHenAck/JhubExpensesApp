@@ -22,6 +22,7 @@ import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.jhubexpensesapp.R
@@ -78,7 +80,8 @@ val totalCost by viewModel.getAllCosts.collectAsState(initial = 0.0)
                 val dismissState = rememberSwipeToDismissBoxState(
                     confirmValueChange = { value ->
 
-                        if (value == SwipeToDismissBoxValue.EndToStart) {
+                        if (value == SwipeToDismissBoxValue.EndToStart ||
+                            value == SwipeToDismissBoxValue.StartToEnd) {
                             viewModel.deleteExpense(expense)
                             true
                         } else {
@@ -89,12 +92,14 @@ val totalCost by viewModel.getAllCosts.collectAsState(initial = 0.0)
 
                 SwipeToDismissBox(
                     state = dismissState,
+                    modifier = Modifier.padding(horizontal = 8.dp),
 
                     backgroundContent = {
 
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
+                                .clip(RoundedCornerShape(12.dp))
                                 .background(
                                     MaterialTheme.colorScheme.error
                                 )
@@ -108,7 +113,7 @@ val totalCost by viewModel.getAllCosts.collectAsState(initial = 0.0)
                         }
                     },
 
-                    enableDismissFromStartToEnd = false,
+                    enableDismissFromStartToEnd = true,
                     enableDismissFromEndToStart = true
 
                 ) {

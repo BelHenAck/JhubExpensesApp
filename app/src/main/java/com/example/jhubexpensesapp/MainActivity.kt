@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
             }
 
-                composable("update_expense/{expenseId"){
+                composable("update_expense/{expenseId}"){
                     backStackEntry ->
 
                     val expenseId = backStackEntry

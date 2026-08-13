@@ -1,5 +1,9 @@
 package com.example.jhubexpensesapp.screens
 
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,24 +42,82 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.jhubexpensesapp.database.Expense
+import com.example.jhubexpensesapp.util.UtilityFunctions
 import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
+import kotlin.text.toDoubleOrNull
 
 
 @Composable
-fun ApdateExpenseScreen(viewModel: ExpenseViewModel){
+fun UpdateExpenseScreen(expense: Expense, viewModel: ExpenseViewModel,navController: NavController){
+
+    var utilF = UtilityFunctions()
 
     var title by remember {
-        mutableStateOf("")
+        mutableStateOf(expense.expenseTitle)
     }
 
     var cost by remember {
-        mutableStateOf("")
+        mutableStateOf(expense.cost.toString())
     }
 
-    var date by remember{
-        mutableStateOf("")
+    var selectedImageUri by remember {
+        mutableStateOf(expense.imageUri?.toUri())
     }
+
+    var date by remember {
+        mutableStateOf<Long?>(expense.metaDataDate)
+    }
+
+    var cameraImageUri by remember{
+
+        mutableStateOf<Uri?>(null)
+
+    }
+
+    val context = LocalContext.current
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) {
+
+            uri: Uri? ->
+
+        uri?.let {
+
+            date = utilF.getImageDate(context, it)
+
+            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+
+            selectedImageUri = utilF.saveImage(context, bitmap)
+        }
+
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+
+        if (success) {
+
+            cameraImageUri?.let { uri ->
+
+                selectedImageUri = uri
+
+                date = utilF.getImageDate(
+                    context,
+                    uri
+                )
+            }
+        }
+    }
+
+
 
     Column(modifier = Modifier.fillMaxSize()
         .background(MaterialTheme.colorScheme.primary)) {
@@ -105,7 +167,7 @@ fun ApdateExpenseScreen(viewModel: ExpenseViewModel){
             )
 
             OutlinedTextField(
-                cost,
+                value = cost,
                 onValueChange = {cost = it},
                 label = {Text("Cost")}
             )
@@ -116,9 +178,10 @@ fun ApdateExpenseScreen(viewModel: ExpenseViewModel){
 
             // date will be taken from metadata
             OutlinedTextField(
-                date,
-                onValueChange = {date = it},
-                label = {Text("Date")}
+                value = utilF.formatDate(date),
+                onValueChange = {},
+                label = { Text("Date") },
+                readOnly = true
             )
 
         }
@@ -135,12 +198,24 @@ fun ApdateExpenseScreen(viewModel: ExpenseViewModel){
 
         ) {
 
-            Image(
-                painter = painterResource(R.drawable.blank_receipt),
-                contentDescription = "Blank receipt image",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
-            )
+            if (selectedImageUri != null) {
+
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Receipt image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+
+            } else {
+
+                Image(
+                    painter = painterResource(R.drawable.blank_receipt),
+                    contentDescription = "Blank receipt image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillBounds
+                )
+            }
 
         }
 
@@ -152,8 +227,7 @@ fun ApdateExpenseScreen(viewModel: ExpenseViewModel){
 
             OutlinedButton (
                 onClick = {
-                    /* TODO */
-                    // Open Gallery picker
+                    galleryLauncher.launch("image/*")
                 },
                 shape = RoundedCornerShape(4.dp)
             ) {
@@ -196,7 +270,16 @@ fun ApdateExpenseScreen(viewModel: ExpenseViewModel){
             ) {
                 ElevatedButton(
                     onClick = {
-                        // Submit
+                        viewModel.updateExpense(
+                            Expense(
+                                id = expense.id,
+                                expenseTitle = title,
+                                cost = cost.toDoubleOrNull() ?: 0.0,
+                                metaDataDate = date ?: expense.metaDataDate,
+                                imageUri = selectedImageUri?.toString()
+                            )
+                        )
+                        navController.popBackStack()
                     },
                     modifier = Modifier.align(Alignment.Center),
                     elevation = ButtonDefaults.elevatedButtonElevation(8.dp),
@@ -209,9 +292,15 @@ fun ApdateExpenseScreen(viewModel: ExpenseViewModel){
                 }
             }
 
+            // Camera
             IconButton(
                 onClick = {
-                    // Open camera
+
+                    val uri = utilF.createImageUri(context)
+
+                    cameraImageUri = uri
+
+                    cameraLauncher.launch(uri)
                 }
             ) {
                 Icon(

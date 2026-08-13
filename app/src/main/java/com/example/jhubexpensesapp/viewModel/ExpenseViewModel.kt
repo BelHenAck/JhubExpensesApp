@@ -12,7 +12,7 @@ class ExpenseViewModel(private val repository: ExpenseRepository): ViewModel() {
 
     val getAllExpenses : LiveData<List<Expense>> = repository.getAllExpenses
 
-    val getAllCosts : Flow<List<Double>> = repository.getAllCost
+    val getAllCosts = repository.getAllCost()
 
     fun insertExpense(expense: Expense) = viewModelScope.launch {
         repository.insertExpense(expense)
@@ -24,6 +24,10 @@ class ExpenseViewModel(private val repository: ExpenseRepository): ViewModel() {
 
     fun deleteExpense(expense: Expense) = viewModelScope.launch {
         repository.deleteExpense(expense)
+    }
+
+    fun getExpenseById(id: Int): LiveData<Expense?> {
+        return repository.getExpenseById(id)
     }
 
 }

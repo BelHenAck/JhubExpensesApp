@@ -26,6 +26,9 @@ interface ExpenseDao {
 
     // Getting the costs within the database
     @Query("SELECT cost FROM expense_table")
-    fun getCosts() : Flow<List<Double>>
+    fun getCosts() : Flow<Double?>
+
+    @Query("SELECT * FROM expense_table WHERE id = :id")
+    fun getExpenseById(id: Int): LiveData<Expense?>
 
 }

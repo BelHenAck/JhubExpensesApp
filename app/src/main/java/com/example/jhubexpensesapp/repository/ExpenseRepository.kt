@@ -15,6 +15,12 @@ class ExpenseRepository(private val expenseDao: ExpenseDao) {
 
     val getAllExpenses : LiveData<List<Expense>> = expenseDao.allExpenses()
 
-    val getAllCost : Flow<List<Double>> = expenseDao.getCosts()
+    fun getAllCost() : Flow<Double?>{
+        return expenseDao.getCosts()
+    }
+
+    fun getExpenseById(id: Int): LiveData<Expense?> {
+        return expenseDao.getExpenseById(id)
+    }
 
 }

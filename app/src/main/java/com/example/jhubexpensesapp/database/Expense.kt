@@ -11,8 +11,7 @@ data class Expense (
     val expenseTitle: String,
     val cost: Double,
     val metaDataDate: Long,
-    val isPaid: Boolean = false,
-    val imageAsString: String
+    val imageUri: String?
 
 
 )

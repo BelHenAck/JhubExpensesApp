@@ -1,6 +1,5 @@
 package com.example.jhubexpensesapp.screens
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -23,21 +21,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.R
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.jhubexpensesapp.database.Expense
+import com.example.jhubexpensesapp.R
 
 
 @Composable
-fun ExpenseItemCard(){
+fun ExpenseItemCard(expense: Expense, navController: NavController){
 
     Spacer(
         modifier = Modifier.padding(top = 24.dp)
     )
 
     ElevatedCard(
+        onClick = {
+            navController.navigate("update_expense/${expense.id}")
+        },
         elevation = CardDefaults.cardElevation(6.dp),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
@@ -56,12 +58,25 @@ fun ExpenseItemCard(){
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Image(
-                painter = painterResource(com.example.jhubexpensesapp.R.drawable.blank_receipt),
-                contentDescription = "Blank receipt image",
-                modifier = Modifier.size(70.dp).clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+            if (expense.imageUri != null) {
+                AsyncImage(
+                    model = expense.imageUri,
+                    contentDescription = "Receipt",
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.blank_receipt),
+                    contentDescription = "Blank receipt",
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             Spacer(
                 modifier = Modifier.padding(16.dp)

@@ -1,5 +1,9 @@
 package com.example.jhubexpensesapp.screens
 
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,12 +42,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.jhubexpensesapp.database.Expense
+import com.example.jhubexpensesapp.util.UtilityFunctions
 import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
 
 
 @Composable
-fun AddExpenseScreen(viewModel: ExpenseViewModel){
+fun AddExpenseScreen(viewModel: ExpenseViewModel, navController: NavController){
+
+    val utilF = UtilityFunctions()
 
     var title by remember {
         mutableStateOf("")
@@ -53,11 +64,59 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel){
         mutableStateOf("")
     }
 
-    var date by remember{
-        mutableStateOf("")
+    var date by remember {
+        mutableStateOf<Long?>(null)
     }
 
-    Column(modifier = Modifier.fillMaxSize()
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    var cameraImageUri by remember{
+
+        mutableStateOf<Uri?>(null)
+
+    }
+
+    val context = LocalContext.current
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) {
+
+        uri: Uri? ->
+
+        uri?.let {
+
+            date = utilF.getImageDate(context, it)
+
+            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+
+            selectedImageUri = utilF.saveImage(context, bitmap)
+        }
+
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+
+        if (success) {
+
+            cameraImageUri?.let { uri ->
+
+                selectedImageUri = uri
+
+                date = utilF.getImageDate(
+                    context,
+                    uri
+                )
+            }
+        }
+    }
+
+    Column(modifier = Modifier
+        .fillMaxSize()
         .background(MaterialTheme.colorScheme.primary)) {
         // Header
         Row(
@@ -82,7 +141,7 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel){
 
             // Total cost
             Text(
-                "£175.65",
+                "Cost",
                 fontSize = 24.sp,
                 color = MaterialTheme.colorScheme.secondary
             )
@@ -116,9 +175,10 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel){
 
             // date will be taken from metadata
             OutlinedTextField(
-                date,
-                onValueChange = {date = it},
-                label = {Text("Date")}
+                value = utilF.formatDate(date),
+                onValueChange = {},
+                label = { Text("Date") },
+                readOnly = true
             )
 
         }
@@ -127,20 +187,33 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel){
         // Where the image will be uploaded
         Box(
             modifier = Modifier
-                .padding(start = 8.dp,
-                    top = 100.dp)
+                .padding(
+                    start = 8.dp,
+                    top = 100.dp
+                )
                 .size(300.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.onPrimary)
 
         ) {
 
-            Image(
-                painter = painterResource(R.drawable.blank_receipt),
-                contentDescription = "Blank receipt image",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
-            )
+            if(selectedImageUri != null){
+
+                AsyncImage(
+                    selectedImageUri,
+                    contentDescription = "Receipt",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.blank_receipt),
+                    contentDescription = "Receipt",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillBounds
+                )
+            }
 
         }
 
@@ -152,8 +225,7 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel){
 
             OutlinedButton (
                 onClick = {
-                    /* TODO */
-                    // Open Gallery picker
+                    galleryLauncher.launch("image/*")
                 },
                 shape = RoundedCornerShape(4.dp)
             ) {
@@ -194,9 +266,18 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel){
                     .weight(1f)
                     .fillMaxHeight()
             ) {
+                // Submit
                 ElevatedButton(
                     onClick = {
-                        // Submit
+                     viewModel.insertExpense(
+                         Expense(
+                             expenseTitle = title,
+                             cost = cost.toDoubleOrNull() ?: 0.0,
+                             metaDataDate = System.currentTimeMillis(),
+                             imageUri = selectedImageUri?.toString()
+                         )
+                     )
+                        navController.popBackStack()
                     },
                     modifier = Modifier.align(Alignment.Center),
                     elevation = ButtonDefaults.elevatedButtonElevation(8.dp),
@@ -208,10 +289,15 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel){
                     )
                 }
             }
-
+            // Camera
             IconButton(
                 onClick = {
-                    // Open camera
+
+                    val uri = utilF.createImageUri(context)
+
+                    cameraImageUri = uri
+
+                    cameraLauncher.launch(uri)
                 }
             ) {
                 Icon(
@@ -219,8 +305,8 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel){
                     contentDescription = "Open Camera"
                 )
             }
+            }
         }
 
 
     }
-}

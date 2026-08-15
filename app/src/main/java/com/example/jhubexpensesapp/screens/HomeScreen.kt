@@ -22,6 +22,7 @@ import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
@@ -34,126 +35,144 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.jhubexpensesapp.R
+import com.example.jhubexpensesapp.ui.theme.JhubExpensesAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: ExpenseViewModel, navController: NavController){
+fun HomeScreen(viewModel: ExpenseViewModel, navController: NavController) {
 
-val totalCost by viewModel.getAllCosts.collectAsState(initial = 0.0)
+    val totalCost by viewModel.getAllCosts.collectAsState(initial = 0.0)
 
     val expenses by viewModel.getAllExpenses.observeAsState(emptyList())
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = {
-                Text("jHub Expenses",
-                    fontSize = 36.sp,
-                    color = MaterialTheme.colorScheme.tertiary)
-            },
-                actions = {
-                    Text("£%.2f".format(totalCost),
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.padding(end = 16.dp))
-                })
-        },
+    JhubExpensesAppTheme {
 
-        floatingActionButton = {
-            FabNewExpense(navController)
-        }
-
-    ) { paddingValues ->
-
-        LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(horizontal = 8.dp)
-        ) {
-
-            items(
-                items = expenses,
-                key = { expense -> expense.id }
-            ) { expense ->
-
-                val dismissState = rememberSwipeToDismissBoxState(
-                    confirmValueChange = { value ->
-
-                        if (value == SwipeToDismissBoxValue.EndToStart ||
-                            value == SwipeToDismissBoxValue.StartToEnd) {
-                            viewModel.deleteExpense(expense)
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                )
-
-                SwipeToDismissBox(
-                    state = dismissState,
-                    modifier = Modifier.padding(horizontal = 8.dp),
-
-                    backgroundContent = {
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    MaterialTheme.colorScheme.error
-                                )
-                                .padding(horizontal = 20.dp),
-                            contentAlignment = Alignment.CenterEnd
-                        ) {
-                            Text(
-                                "Delete",
-                                color = MaterialTheme.colorScheme.onError
-                            )
-                        }
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            "jHub Expenses",
+                            fontSize = 28.sp,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
                     },
+                    actions = {
+                        Text(
+                            "£%.2f".format(totalCost),
+                            fontSize = 24F.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    })
+            },
 
-                    enableDismissFromStartToEnd = true,
-                    enableDismissFromEndToStart = true
+            floatingActionButton = {
+                FabNewExpense(navController)
+            }
 
-                ) {
+        )
 
-                    ExpenseItemCard(
-                        expense = expense,
-                        navController = navController
+        { paddingValues ->
+
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp)
+                    .padding(top = 36.dp)
+            ) {
+
+                items(
+                    items = expenses,
+                    key = { expense -> expense.id }
+                ) { expense ->
+
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { value ->
+
+                            if (value == SwipeToDismissBoxValue.EndToStart ||
+                                value == SwipeToDismissBoxValue.StartToEnd
+                            ) {
+                                viewModel.deleteExpense(expense)
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                    )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .padding(horizontal = 8.dp),
+
+                        backgroundContent = {
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        MaterialTheme.colorScheme.error
+                                    )
+                                    .padding(horizontal = 20.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Text(
+                                    "Delete",
+                                    color = MaterialTheme.colorScheme.onError
+                                )
+                            }
+                        },
+
+                        enableDismissFromStartToEnd = true,
+                        enableDismissFromEndToStart = true
+
+                    ) {
+
+                        ExpenseItemCard(
+                            expense = expense,
+                            navController = navController
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
                     )
                 }
-
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
             }
-        }
 
         }
 
     }
 
-@Composable
-fun FabNewExpense(navController: NavController) {
-
-    ExtendedFloatingActionButton(
-        onClick = {
-            navController.navigate("add_expense")
-        },
-
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.secondary,
-
-        icon = {
-            Icon(
-                painter = painterResource(R.drawable.new_expense_icon),
-                contentDescription = "New Expense"
-            )
-        },
-        text = {
-            Text("New Expense")
-        }
-    )
 }
+
+    @Composable
+    fun FabNewExpense(navController: NavController) {
+
+        ExtendedFloatingActionButton(
+            onClick = {
+                navController.navigate("add_expense")
+            },
+
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.secondary,
+
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.new_expense_icon),
+                    contentDescription = "New Expense"
+                )
+            },
+            text = {
+                Text("New Expense")
+            }
+        )
+    }
+
 

@@ -81,11 +81,6 @@ class MainActivity : ComponentActivity() {
 
             }
 
-            JhubExpensesAppTheme {
-
-
-
-            }
 
         }
     }

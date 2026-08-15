@@ -42,14 +42,13 @@ fun ExpenseItemCard(expense: Expense, navController: NavController){
         onClick = {
             navController.navigate("update_expense/${expense.id}")
         },
-        elevation = CardDefaults.cardElevation(6.dp),
+        elevation = CardDefaults.cardElevation(12.dp),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
-            .padding(start = 8.dp, end = 8.dp),
+            .height(100.dp),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.colorScheme.primary
         )
     ){
 
@@ -87,14 +86,16 @@ fun ExpenseItemCard(expense: Expense, navController: NavController){
             Column() {
 
                 Text(text = expense.expenseTitle,
-                    fontSize = 24.sp)
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.secondary)
 
                 Spacer(
                     modifier = Modifier.padding(2.dp)
                 )
 
                 Text(text = "£%.2f".format(expense.cost),
-                    fontSize = 20.sp)
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.secondary)
 
             }
 

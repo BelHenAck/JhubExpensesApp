@@ -126,7 +126,7 @@ fun UpdateExpenseScreen(expense: Expense, viewModel: ExpenseViewModel,navControl
             TopAppBar(
                 title = {
                     Text(
-                        "Add Expense",
+                        "Update Expense",
                         fontSize = 28.sp,
                         color = MaterialTheme.colorScheme.tertiary
                     )
@@ -176,7 +176,8 @@ fun UpdateExpenseScreen(expense: Expense, viewModel: ExpenseViewModel,navControl
                         navController.popBackStack()
                     }
                 ) {
-                    Text("Submit")
+                    Text("Submit",
+                        color = MaterialTheme.colorScheme.secondary)
                 }
                 //Camera
                 IconButton(

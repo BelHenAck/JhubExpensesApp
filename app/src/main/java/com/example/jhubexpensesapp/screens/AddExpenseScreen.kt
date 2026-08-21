@@ -173,7 +173,8 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel, navController: NavController) 
                             navController.popBackStack()
                         }
                     ) {
-                        Text("Submit")
+                        Text("Submit",
+                            color = MaterialTheme.colorScheme.secondary)
                     }
                     //Camera
                     IconButton(

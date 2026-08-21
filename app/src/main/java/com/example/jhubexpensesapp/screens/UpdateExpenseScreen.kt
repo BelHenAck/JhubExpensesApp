@@ -170,8 +170,9 @@ fun UpdateExpenseScreen(expense: Expense, viewModel: ExpenseViewModel,navControl
                 //Submit
                 ElevatedButton(
                     onClick = {
-                        viewModel.insertExpense(
+                        viewModel.updateExpense(
                             Expense(
+                                id = expense.id,
                                 expenseTitle = title,
                                 cost = cost.toDoubleOrNull() ?: 0.0,
                                 metaDataDate = System.currentTimeMillis(),

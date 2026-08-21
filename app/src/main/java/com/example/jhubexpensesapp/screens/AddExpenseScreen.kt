@@ -58,6 +58,7 @@ import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
 import androidx.compose.foundation.layout.navigationBarsPadding
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(viewModel: ExpenseViewModel, navController: NavController) {
@@ -241,7 +242,8 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel, navController: NavController) 
                         .padding(top = 8.dp)
                         .size(250.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.onPrimary)
+                        .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
 
                 ) {
 
@@ -256,9 +258,9 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel, navController: NavController) 
 
                     } else {
                         Image(
-                            painter = painterResource(R.drawable.blank_receipt),
+                            painter = painterResource(R.drawable.no_photo_image),
                             contentDescription = "Receipt",
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.size(150.dp),
                             contentScale = ContentScale.FillBounds
                         )
                     }

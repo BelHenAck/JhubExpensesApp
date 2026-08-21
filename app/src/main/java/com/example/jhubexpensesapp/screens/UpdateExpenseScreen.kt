@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,12 +25,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +60,7 @@ import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
 import kotlin.text.toDoubleOrNull
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateExpenseScreen(expense: Expense, viewModel: ExpenseViewModel,navController: NavController) {
 
@@ -121,91 +127,122 @@ fun UpdateExpenseScreen(expense: Expense, viewModel: ExpenseViewModel,navControl
         }
     }
 
-    JhubExpensesAppTheme() {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Add Expense",
+                        fontSize = 28.sp,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                },
+                actions = {
+                    Text(
+                        "£%.2f".format(totalCost),
+                        fontSize = 24F.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(end = 16.dp)
+                    )
+                })
+        },
 
-        Column(
-            modifier = Modifier.fillMaxSize()
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(top = 24.dp)
-        ) {
-            // Header
+        bottomBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.primary)
-                    .height(64.dp)
-                    .padding(horizontal = 18.dp),
+                    .navigationBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Add Expense Header
-                Text(
-                    "Update Expense",
-                    fontSize = 28.sp,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-
-                Spacer(
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Total cost
-                Text(
-                    "£%.2f".format(totalCost),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-
+                // Back
+                IconButton(
+                    onClick = { navController.popBackStack() }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.back_arrow_icon),
+                        contentDescription = "Back"
+                    )
+                }
+                //Submit
+                ElevatedButton(
+                    onClick = {
+                        viewModel.insertExpense(
+                            Expense(
+                                expenseTitle = title,
+                                cost = cost.toDoubleOrNull() ?: 0.0,
+                                metaDataDate = System.currentTimeMillis(),
+                                imageUri = selectedImageUri?.toString()
+                            )
+                        )
+                        navController.popBackStack()
+                    }
+                ) {
+                    Text("Submit")
+                }
+                //Camera
+                IconButton(
+                    onClick = {
+                        val uri = utilF.createImageUri(context)
+                        cameraImageUri = uri
+                        cameraLauncher.launch(uri)
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.outline_photo_camera_24),
+                        contentDescription = "Camera"
+                    )
+                }
             }
+        }
 
-            // Entries for title, cost and date
-            Column(
-                modifier = Modifier.padding(
-                    start = 8.dp,
-                    top = 30.dp
-                )
-            ) {
+    )
 
+    { paddingValues ->
 
-                OutlinedTextField(
-                    title,
-                    onValueChange = { title = it },
-                    label = { Text("Title") }
-                )
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .padding(horizontal = 8.dp)
+        ) {
 
-                Spacer(
-                    modifier = Modifier.height(16.dp)
-                )
+            OutlinedTextField(
+                title,
+                onValueChange = { title = it },
+                label = { Text("Title") }
+            )
 
-                OutlinedTextField(
-                    value = cost,
-                    onValueChange = { cost = it },
-                    label = { Text("Cost") }
-                )
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
-                Spacer(
-                    modifier = Modifier.height(16.dp)
-                )
+            OutlinedTextField(
+                cost,
+                onValueChange = { cost = it },
+                label = { Text("Cost") }
+            )
 
-                // date will be taken from metadata
-                OutlinedTextField(
-                    value = utilF.formatDate(date),
-                    onValueChange = {},
-                    label = { Text("Date") },
-                    readOnly = true
-                )
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
-            }
-
+            // date will be taken from metadata
+            OutlinedTextField(
+                value = utilF.formatDate(date),
+                onValueChange = {},
+                label = { Text("Date") },
+                readOnly = true
+            )
 
             // Where the image will be uploaded
             Box(
                 modifier = Modifier
-                    .padding(
-                        start = 8.dp,
-                        top = 100.dp
-                    )
-                    .size(300.dp)
+                    .padding(top = 8.dp)
+                    .size(250.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.onPrimary)
 
@@ -214,17 +251,16 @@ fun UpdateExpenseScreen(expense: Expense, viewModel: ExpenseViewModel,navControl
                 if (selectedImageUri != null) {
 
                     AsyncImage(
-                        model = selectedImageUri,
-                        contentDescription = "Receipt image",
+                        selectedImageUri,
+                        contentDescription = "Receipt",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
 
                 } else {
-
                     Image(
                         painter = painterResource(R.drawable.blank_receipt),
-                        contentDescription = "Blank receipt image",
+                        contentDescription = "Receipt",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.FillBounds
                     )
@@ -233,107 +269,29 @@ fun UpdateExpenseScreen(expense: Expense, viewModel: ExpenseViewModel,navControl
             }
 
             // Upload from gallery button
-            Row(
-                modifier = Modifier.padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            OutlinedButton(
+                onClick = {
+                    galleryLauncher.launch("image/*")
+                },
+                modifier = Modifier.padding(top = 8.dp),
+                shape = RoundedCornerShape(4.dp)
             ) {
 
-                OutlinedButton(
-                    onClick = {
-                        galleryLauncher.launch("image/*")
-                    },
-                    shape = RoundedCornerShape(4.dp)
-                ) {
+                Icon(
+                    painter = painterResource(R.drawable.upload_icon),
+                    "Upload from gallery Icon"
+                )
 
-                    Icon(
-                        painter = painterResource(R.drawable.upload_icon),
-                        "Upload from gallery Icon"
-                    )
+                Spacer(
+                    modifier = Modifier.width(4.dp)
+                )
 
-                    Spacer(
-                        modifier = Modifier.width(4.dp)
-                    )
+                Text("Gallery")
 
-                    Text("Gallery")
-
-                }
-
-
-            }
-
-            Spacer(
-                modifier = Modifier.weight(1f)
-            )
-
-            // Footer
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
-                    .height(64.dp)
-                    .padding(horizontal = 18.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                IconButton(
-                    onClick = {
-                        navController.popBackStack()
-                    }
-                ) {
-
-                    Icon(painter = painterResource(R.drawable.back_arrow_icon),
-                        contentDescription = "Back")
-
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                ) {
-                    ElevatedButton(
-                        onClick = {
-                            viewModel.updateExpense(
-                                Expense(
-                                    id = expense.id,
-                                    expenseTitle = title,
-                                    cost = cost.toDoubleOrNull() ?: 0.0,
-                                    metaDataDate = date ?: expense.metaDataDate,
-                                    imageUri = selectedImageUri?.toString()
-                                )
-                            )
-                            navController.popBackStack()
-                        },
-                        modifier = Modifier.align(Alignment.Center),
-                        elevation = ButtonDefaults.elevatedButtonElevation(8.dp),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            "Submit",
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-                }
-
-                // Camera
-                IconButton(
-                    onClick = {
-
-                        val uri = utilF.createImageUri(context)
-
-                        cameraImageUri = uri
-
-                        cameraLauncher.launch(uri)
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.outline_photo_camera_24),
-                        contentDescription = "Open Camera"
-                    )
-                }
             }
 
 
         }
+
     }
 }

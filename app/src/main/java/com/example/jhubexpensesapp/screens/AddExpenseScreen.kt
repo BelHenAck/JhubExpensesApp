@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,12 +24,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -51,8 +55,10 @@ import com.example.jhubexpensesapp.database.Expense
 import com.example.jhubexpensesapp.ui.theme.JhubExpensesAppTheme
 import com.example.jhubexpensesapp.util.UtilityFunctions
 import com.example.jhubexpensesapp.viewModel.ExpenseViewModel
+import androidx.compose.foundation.layout.navigationBarsPadding
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(viewModel: ExpenseViewModel, navController: NavController) {
 
@@ -118,54 +124,88 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel, navController: NavController) 
             }
         }
     }
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            "Add Expense",
+                            fontSize = 28.sp,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    },
+                    actions = {
+                        Text(
+                            "£%.2f".format(totalCost),
+                            fontSize = 24F.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    })
+            },
 
-    JhubExpensesAppTheme() {
-
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(top = 24.dp)
-        ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
-                    .height(64.dp)
-                    .padding(horizontal = 18.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Add Expense Header
-                Text(
-                    "Add Expense",
-                    fontSize = 28.sp,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-
-                Spacer(
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Total cost
-                Text(
-                    "£%.2f".format(totalCost),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-
+            bottomBar = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primary)
+                        .navigationBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Back
+                    IconButton(
+                        onClick = { navController.popBackStack() }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.back_arrow_icon),
+                            contentDescription = "Back"
+                        )
+                    }
+                    //Submit
+                    ElevatedButton(
+                        onClick = {
+                            viewModel.insertExpense(
+                                Expense(
+                                    expenseTitle = title,
+                                    cost = cost.toDoubleOrNull() ?: 0.0,
+                                    metaDataDate = System.currentTimeMillis(),
+                                    imageUri = selectedImageUri?.toString()
+                                )
+                            )
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Text("Submit")
+                    }
+                    //Camera
+                    IconButton(
+                        onClick = {
+                            val uri = utilF.createImageUri(context)
+                            cameraImageUri = uri
+                            cameraLauncher.launch(uri)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_photo_camera_24),
+                            contentDescription = "Camera"
+                        )
+                    }
+                }
             }
 
-            // Entries for title, cost and date
-            Column(
-                modifier = Modifier.padding(
-                    start = 8.dp,
-                    top = 30.dp
-                )
-            ) {
+        )
 
+        { paddingValues ->
+
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp)
+            ) {
 
                 OutlinedTextField(
                     title,
@@ -195,145 +235,65 @@ fun AddExpenseScreen(viewModel: ExpenseViewModel, navController: NavController) 
                     readOnly = true
                 )
 
-            }
-
-
-            // Where the image will be uploaded
-            Box(
-                modifier = Modifier
-                    .padding(
-                        start = 8.dp,
-                        top = 16.dp
-                    )
-                    .size(300.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.onPrimary)
-
-            ) {
-
-                if (selectedImageUri != null) {
-
-                    AsyncImage(
-                        selectedImageUri,
-                        contentDescription = "Receipt",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-
-                } else {
-                    Image(
-                        painter = painterResource(R.drawable.blank_receipt),
-                        contentDescription = "Receipt",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.FillBounds
-                    )
-                }
-
-            }
-
-            // Upload from gallery button
-            Row(
-                modifier = Modifier.padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                OutlinedButton(
-                    onClick = {
-                        galleryLauncher.launch("image/*")
-                    },
-                    shape = RoundedCornerShape(4.dp)
-                ) {
-
-                    Icon(
-                        painter = painterResource(R.drawable.upload_icon),
-                        "Upload from gallery Icon"
-                    )
-
-                    Spacer(
-                        modifier = Modifier.width(4.dp)
-                    )
-
-                    Text("Gallery")
-
-                }
-
-
-            }
-
-            Spacer(
-                modifier = Modifier.weight(1f)
-            )
-
-            // Footer
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
-                    .height(64.dp)
-                    .padding(horizontal = 18.dp)
-                    .padding(bottom = 42.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                IconButton(
-                    onClick = {
-                        navController.popBackStack()
-                    }
-                ) {
-
-                    Icon(painter = painterResource(R.drawable.back_arrow_icon),
-                        contentDescription = "Back")
-
-                }
-
+                // Where the image will be uploaded
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
+                        .padding(top = 8.dp)
+                        .size(250.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.onPrimary)
+
                 ) {
-                    // Submit
-                    ElevatedButton(
-                        onClick = {
-                            viewModel.insertExpense(
-                                Expense(
-                                    expenseTitle = title,
-                                    cost = cost.toDoubleOrNull() ?: 0.0,
-                                    metaDataDate = System.currentTimeMillis(),
-                                    imageUri = selectedImageUri?.toString()
-                                )
-                            )
-                            navController.popBackStack()
-                        },
-                        modifier = Modifier.align(Alignment.Center),
-                        elevation = ButtonDefaults.elevatedButtonElevation(8.dp),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            "Submit",
-                            color = MaterialTheme.colorScheme.secondary
+
+                    if (selectedImageUri != null) {
+
+                        AsyncImage(
+                            selectedImageUri,
+                            contentDescription = "Receipt",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+
+                    } else {
+                        Image(
+                            painter = painterResource(R.drawable.blank_receipt),
+                            contentDescription = "Receipt",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.FillBounds
                         )
                     }
+
                 }
-                // Camera
-                IconButton(
-                    onClick = {
 
-                        val uri = utilF.createImageUri(context)
+                // Upload from gallery button
+                    OutlinedButton(
+                        onClick = {
+                            galleryLauncher.launch("image/*")
+                        },
+                        modifier = Modifier.padding(top = 8.dp),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
 
-                        cameraImageUri = uri
+                        Icon(
+                            painter = painterResource(R.drawable.upload_icon),
+                            "Upload from gallery Icon"
+                        )
 
-                        cameraLauncher.launch(uri)
+                        Spacer(
+                            modifier = Modifier.width(4.dp)
+                        )
+
+                        Text("Gallery")
+
                     }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.outline_photo_camera_24),
-                        contentDescription = "Open Camera"
-                    )
+
+
                 }
+
             }
+
+
+
+
+
         }
-
-
-    }
-
-}

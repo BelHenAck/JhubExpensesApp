@@ -35,44 +35,51 @@ class MainActivity : ComponentActivity() {
             val viewModelFactory = ViewModelFactory(repository)
 
             val viewModel = ViewModelProvider(
-                this, viewModelFactory)[ExpenseViewModel::class.java]
+                this, viewModelFactory
+            )[ExpenseViewModel::class.java]
 
             val navController = rememberNavController()
 
+            JhubExpensesAppTheme() {
+
             NavHost(
                 navController = navController,
-                startDestination = "home_page") {
+                startDestination = "home_page"
+            ) {
 
-            composable("home_page"){
-                HomeScreen(viewModel = viewModel,
-                    navController = navController)
-            }
+                composable("home_page") {
+                    HomeScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
 
-            composable("add_expense"){
-                AddExpenseScreen(
-                    viewModel = viewModel,
-                    navController = navController
-                )
+                composable("add_expense") {
+                    AddExpenseScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
 
-            }
+                }
 
-                composable("update_expense/{expenseId}"){
-                    backStackEntry ->
+                composable("update_expense/{expenseId}") { backStackEntry ->
 
                     val expenseId = backStackEntry
                         .arguments
                         ?.getString("expenseId")
                         ?.toIntOrNull()
 
-                    if(expenseId != null){
+                    if (expenseId != null) {
                         val expense by viewModel
                             .getExpenseById(expenseId)
                             .observeAsState()
 
-                        expense?.let{
-                            UpdateExpenseScreen(expense = it,
+                        expense?.let {
+                            UpdateExpenseScreen(
+                                expense = it,
                                 viewModel = viewModel,
-                                navController = navController)
+                                navController = navController
+                            )
                         }
 
                     }
@@ -80,7 +87,7 @@ class MainActivity : ComponentActivity() {
                 }
 
             }
-
+        }
 
         }
     }

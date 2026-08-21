@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import com.example.jhubexpensesapp.R
 import com.example.jhubexpensesapp.ui.theme.JhubExpensesAppTheme
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: ExpenseViewModel, navController: NavController) {
@@ -45,9 +46,7 @@ fun HomeScreen(viewModel: ExpenseViewModel, navController: NavController) {
 
     val expenses by viewModel.getAllExpenses.observeAsState(emptyList())
 
-    JhubExpensesAppTheme {
-
-        Scaffold(
+    Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
@@ -148,7 +147,7 @@ fun HomeScreen(viewModel: ExpenseViewModel, navController: NavController) {
 
         }
 
-    }
+
 
 }
 
